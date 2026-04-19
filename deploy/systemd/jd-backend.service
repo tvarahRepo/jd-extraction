@@ -1,0 +1,17 @@
+[Unit]
+Description=JD Extraction FastAPI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/jd-extraction/JDParserAgent
+EnvironmentFile=/opt/jd-extraction/.env
+ExecStart=/opt/jd-extraction/.venv/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

@@ -22,7 +22,20 @@ def ocr_jd(state: AgentState) -> dict:
 
     url = upload_file(state["jd_file_path"])
     ocr_response = get_ocr_response(url)
-    markdown = " ".join(page.markdown for page in ocr_response.pages)
+    pages = getattr(ocr_response, "pages", None) or []
+    markdown_parts = [
+        page.markdown
+        for page in pages
+        if getattr(page, "markdown", None)
+    ]
+    if not markdown_parts:
+        fallback_markdown = getattr(ocr_response, "markdown", None)
+        if fallback_markdown:
+            markdown_parts = [fallback_markdown]
+    if not markdown_parts:
+        raise ValueError("OCR returned no markdown content for the uploaded JD.")
+
+    markdown = " ".join(markdown_parts)
 
     logger.info(f"OCR completed for file {state['jd_file_path']}. Extracted markdown length: {len(markdown)} characters.")
     return {"jd_markdown": markdown}

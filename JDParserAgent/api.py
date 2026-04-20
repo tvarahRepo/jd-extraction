@@ -91,7 +91,7 @@ async def parse_jd(file: UploadFile = File(...)):
         logger.debug(f"Temp file deleted: {tmp_path}")
 
     # Build response
-    judge_results = result.get("judge_results", [])
+    judge_results = result.get("judge_results") or []
     final_verdict = judge_results[-1] if judge_results else None
     logger.info(f"Final verdict for '{file.filename}': {final_verdict['grade'] if final_verdict else 'N/A'}")
 

@@ -55,10 +55,23 @@ def llm_as_judge(state: AgentState) -> dict:
     from judge_chain import get_judge_chain
 
     chain = get_judge_chain()
-    result = chain.invoke({
-        "markdown": state["jd_markdown"],
-        "jsondata": state["jd_data"].model_dump_json(indent=4),
-    })
+    try:
+        result = chain.invoke({
+            "markdown": state["jd_markdown"],
+            "jsondata": state["jd_data"].model_dump_json(indent=4),
+        })
+    except Exception as exc:
+        logger.warning("LLM judge failed, returning REVIEW instead of crashing: %s", exc)
+        return {
+            "reflection_loop": state["reflection_loop"] + 1,
+            "judge_results": [
+                {
+                    "source": "jd",
+                    "grade": "REVIEW",
+                    "summary": f"Judge unavailable or malformed provider response: {exc}",
+                }
+            ],
+        }
 
     logger.info(f"LLM judge completed. Grade: {result.grade}, Summary: {result.grade_summary}")
     return {

@@ -20,10 +20,14 @@ judge_system_prompt = SystemMessagePromptTemplate.from_template(
     3. **Missing Critical Data:** Did the JSON return 'null' for a role title or mandatory skill that is clearly visible in the text?
 
     ### CLASSIFICATION RULES
+    - Respect explicit section labels:
+      - `Mandate Skills`, `Must Have`, `Required Skills`, `Requirements`, `Qualifications` => mandatory unless the line itself says preferred/plus/good to have.
+      - `Desired Skills`, `Preferred Skills`, `Nice to Have`, `Good to Have`, `Bonus`, `Plus`, `Value Addition` => optional.
     - Treat phrases like "good to have", "nice to have", "preferred", "plus", and "value addition" as optional, not mandatory.
     - If an industry/domain is captured in a dedicated `industry_domains` field, do not require it to also appear in `optional_skills`.
     - Do not fail the JSON for using a string format like "15-20 team members" in `team_size`.
     - If a technology appears in a bundled experience phrase such as "cloud-native platforms (...), data lakes", it should be treated as mandatory.
+    - Do not require every descriptive sentence from responsibilities or desired-skill prose to become a skill entry.
 
     ### OUTPUT FORMAT
     Return valid JSON with two fields:

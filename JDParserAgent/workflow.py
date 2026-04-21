@@ -16,30 +16,38 @@ logger.setLevel(logging.DEBUG)
 
 
 def normalize_jd_data(result, markdown: str):
-    optional_skills = result.optional_skills or []
-    industry_domains = result.industry_domains or []
+    def dedupe_keep_order(values):
+        output = []
+        seen = set()
+        for value in values or []:
+            if not value:
+                continue
+            normalized = " ".join(str(value).split()).strip()
+            key = normalized.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            output.append(normalized)
+        return output
 
-    # "Data lakes" appears in the analytics leadership JDs as part of mandatory platform experience.
-    normalized_optional = []
-    for skill in optional_skills:
-        if skill.lower() in {"data lakes", "data lake"}:
-            if "Data lakes" not in result.mandatory_skills.cloud_and_infra:
-                result.mandatory_skills.cloud_and_infra.append("Data lakes")
-            continue
-        normalized_optional.append(skill)
+    result.mandatory_skills.programming_languages = dedupe_keep_order(result.mandatory_skills.programming_languages)
+    result.mandatory_skills.frameworks_and_libraries = dedupe_keep_order(result.mandatory_skills.frameworks_and_libraries)
+    result.mandatory_skills.tools = dedupe_keep_order(result.mandatory_skills.tools)
+    result.mandatory_skills.databases = dedupe_keep_order(result.mandatory_skills.databases)
+    result.mandatory_skills.cloud_and_infra = dedupe_keep_order(result.mandatory_skills.cloud_and_infra)
 
-    domain_names = {domain.lower() for domain in industry_domains}
-    normalized_optional = [
-        skill for skill in normalized_optional
-        if skill.lower() not in domain_names
-    ]
-    result.optional_skills = normalized_optional
-
-    # Keep industry domains focused on true business domains rather than generic analytics terms.
     result.industry_domains = [
-        domain for domain in industry_domains
+        domain for domain in dedupe_keep_order(result.industry_domains)
         if domain.lower() not in {"analytics", "business intelligence", "bi"}
     ]
+
+    domain_names = {domain.lower() for domain in result.industry_domains}
+    result.optional_skills = [
+        skill for skill in dedupe_keep_order(result.optional_skills)
+        if skill.lower() not in domain_names
+    ]
+
+    result.summary_responsibilities = dedupe_keep_order(result.summary_responsibilities)
 
     return result
 

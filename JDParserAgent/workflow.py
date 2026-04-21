@@ -15,6 +15,35 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
+def normalize_jd_data(result, markdown: str):
+    optional_skills = result.optional_skills or []
+    industry_domains = result.industry_domains or []
+
+    # "Data lakes" appears in the analytics leadership JDs as part of mandatory platform experience.
+    normalized_optional = []
+    for skill in optional_skills:
+        if skill.lower() in {"data lakes", "data lake"}:
+            if "Data lakes" not in result.mandatory_skills.cloud_and_infra:
+                result.mandatory_skills.cloud_and_infra.append("Data lakes")
+            continue
+        normalized_optional.append(skill)
+
+    domain_names = {domain.lower() for domain in industry_domains}
+    normalized_optional = [
+        skill for skill in normalized_optional
+        if skill.lower() not in domain_names
+    ]
+    result.optional_skills = normalized_optional
+
+    # Keep industry domains focused on true business domains rather than generic analytics terms.
+    result.industry_domains = [
+        domain for domain in industry_domains
+        if domain.lower() not in {"analytics", "business intelligence", "bi"}
+    ]
+
+    return result
+
+
 # --- Nodes ---
 
 def ocr_jd(state: AgentState) -> dict:
@@ -46,6 +75,7 @@ def parse_jd(state: AgentState) -> dict:
 
     chain = get_jd_chain()
     result = chain.invoke({"job_description_markdown": state["jd_markdown"]})
+    result = normalize_jd_data(result, state["jd_markdown"])
 
     logger.info("JD parsing completed.")
     return {"jd_data": result}

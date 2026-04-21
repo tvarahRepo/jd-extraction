@@ -19,6 +19,12 @@ judge_system_prompt = SystemMessagePromptTemplate.from_template(
     2. **Misclassification:** Were mandatory skills placed in optional or vice versa?
     3. **Missing Critical Data:** Did the JSON return 'null' for a role title or mandatory skill that is clearly visible in the text?
 
+    ### CLASSIFICATION RULES
+    - Treat phrases like "good to have", "nice to have", "preferred", "plus", and "value addition" as optional, not mandatory.
+    - If an industry/domain is captured in a dedicated `industry_domains` field, do not require it to also appear in `optional_skills`.
+    - Do not fail the JSON for using a string format like "15-20 team members" in `team_size`.
+    - If a technology appears in a bundled experience phrase such as "cloud-native platforms (...), data lakes", it should be treated as mandatory.
+
     ### OUTPUT FORMAT
     Return valid JSON with two fields:
     - "grade": "PASS" or "FAIL"

@@ -64,6 +64,7 @@ if uploaded_jd and st.button("Analyze JD", key="jd_analyze"):
                         "min_years_experience": jd_data.get("min_years_experience"),
                         "max_years_experience": jd_data.get("max_years_experience"),
                         "degree_required": jd_data.get("degree_required"),
+                        "team_size": jd_data.get("team_size"),
                         "salary_range": jd_data.get("salary_range"),
                     }
                 )
@@ -74,6 +75,8 @@ if uploaded_jd and st.button("Analyze JD", key="jd_analyze"):
                 st.json(mandatory_skills)
                 st.subheader("Optional Skills")
                 st.json(jd_data.get("optional_skills"))
+                st.subheader("Industry Domains")
+                st.json(jd_data.get("industry_domains"))
 
             st.subheader("Judge Results")
             st.json(data.get("judge_results"))

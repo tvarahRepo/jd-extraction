@@ -102,3 +102,30 @@ class JobDescription(BaseModel):
         ...,
         description="Top 3-5 core responsibilities summarized from the JD",
     )
+
+
+class JDScorecard(BaseModel):
+    role_clarity: int = Field(
+        default=0,
+        description="0–10 score for how clearly the role is defined (title + responsibilities)",
+    )
+    tech_specificity: int = Field(
+        default=0,
+        description="0–10 score for how specific the tech requirements are (number of named tools/skills)",
+    )
+    consulting_vs_product: str | None = Field(
+        default=None,
+        description="Company archetype: Consulting, Product, Both, or null if unclear",
+    )
+    experience_inflation: str = Field(
+        default="ok",
+        description="'ok' or 'flagged' — flagged if min experience > 8 yrs or range > 10 yrs",
+    )
+    missing_screening: list[str] = Field(
+        default=[],
+        description="List of important screening criteria absent from the JD. Empty if nothing is missing.",
+    )
+    compensation_signal: str = Field(
+        default="CTC not specified",
+        description="Exact salary/CTC range if mentioned, otherwise 'CTC not specified'",
+    )

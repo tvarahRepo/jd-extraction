@@ -21,6 +21,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 
 from workflow import build_graph
+from scorecard import compute_scorecard
 
 # --- Logging ---
 
@@ -95,8 +96,12 @@ async def parse_jd(file: UploadFile = File(...)):
     final_verdict = judge_results[-1] if judge_results else None
     logger.info(f"Final verdict for '{file.filename}': {final_verdict['grade'] if final_verdict else 'N/A'}")
 
+    jd_data = result.get("jd_data")
+    scorecard = compute_scorecard(jd_data).model_dump() if jd_data else None
+
     return JSONResponse(content={
-        "jd_data": result["jd_data"].model_dump() if result.get("jd_data") else None,
+        "jd_data": jd_data.model_dump() if jd_data else None,
+        "scorecard": scorecard,
         "judge_results": judge_results,
         "reflection_loop": reflection_loop,
         "verdict": final_verdict["grade"] if final_verdict else None,

@@ -82,3 +82,11 @@ if uploaded_jd and st.button("Analyze JD", key="jd_analyze"):
             st.json(data.get("judge_results"))
             st.subheader("Full Output")
             st.code(json.dumps(data, indent=2), language="json")
+
+            download_name = uploaded_jd.name.rsplit(".", 1)[0] + "_jd_extraction.json"
+            st.download_button(
+                label="⬇️ Download JSON",
+                data=json.dumps(data, indent=2),
+                file_name=download_name,
+                mime="application/json",
+            )
